@@ -17,6 +17,7 @@ class App extends Component {
       {
         routes.map((route, index) => {
           // 这种方法比较麻烦，可以直接使用。。。运算符
+
           // return <Route path={route.path} exact={route.exact} component={route.component}/>
           return <Route {...route} key={index}/>
         })
