@@ -1,3 +1,7 @@
+/*
+* 本模块是主组件
+* */
+
 import React, {Component} from 'react';
 // 引入路由，BrowserRouter as Router，使用as进行重命名
 import {BrowserRouter as Router, Route} from 'react-router-dom';

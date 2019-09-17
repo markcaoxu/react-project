@@ -1,3 +1,7 @@
+/*
+* 配置路径别名
+* */
+
 const {override, fixBabelImports, addLessLoader, addDecoratorsLegacy, addWebpackAlias} = require('customize-cra');
 const { resolve } = require('path');
 
