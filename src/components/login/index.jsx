@@ -1,15 +1,15 @@
 import React, {Component} from 'react';
 // 使用 ant design
-import {Form, Icon, Input, Button, message } from 'antd';
+import {Form, Icon, Input, Button, message} from 'antd';
+
+import {reqLogin} from '../../api/index';
 
 import logo from './logo.png'
 import './index.less';
 
-import axios from 'axios';
-
 // 使用redux数据  引入高阶组件
-import { connect } from 'react-redux';
-import { saveUser } from '@redux/action-creators';
+import {connect} from 'react-redux';
+import {saveUser} from '@redux/action-creators';
 
 const {Item} = Form;
 
@@ -17,7 +17,7 @@ const {Item} = Form;
 @connect(
   // 第一个属性是传redux中的数据    这里不需要，这里不需要状态数据，只需要更新状态数据的方法
   null,
-  { saveUser }
+  {saveUser}
 )
 // 装饰器用法，底层调用第二次，并且自动将组将传参  Form.create()(底层传参调用)
 @Form.create()
@@ -50,12 +50,12 @@ class Login extends Component {
   /*
   * 登录函数
   * */
-  login = (event)=>{
+  login = (event) => {
     // 禁止默认行为
     event.preventDefault();
     console.log('测试成功');
     // 校验表单  validateFields方法，参数是一个函数
-    this.props.form.validateFields((error,values)=>{
+    this.props.form.validateFields(async (error, values) => {
       /*
         error 校验失败/错误
           校验失败就是 {}
@@ -63,12 +63,12 @@ class Login extends Component {
         values
       */
       console.log('测试');
-      if (!error){
+      if (!error) {
         // 校验通过
         // 获取表单项的值
         console.log(values);
-        const { username,password } = values;
-        // 发送请求
+        const {username, password} = values;
+
         /*
           发送请求遇见了跨域问题：（当前游览器端口是3000，要访问的服务器端口是5000）
           服务器与服务器之间没有跨域问题
@@ -87,8 +87,8 @@ class Login extends Component {
               1. 只能用于开发环境，不能用于上线环境
         */
 
-        axios.post('http://localhost:3000/api/login',{ username,password })
-          .then((response)=>{
+        /*axios.post('/login', {username, password})
+          .then((response) => {
             console.log(response.data);
             // 请求成功，但是没有登录成功
             // 判断status的值，来决定是否登录成功
@@ -110,20 +110,37 @@ class Login extends Component {
               message.error(response.data.msg)
             }
           })
-          .catch((error)=>{
+          .catch((error) => {
             // 请求失败 - 登录失败  4、5开头的错误
             message.error('未知错误！')
           })
-          .finally(()=>{
-              this.props.form.resetFields(['password'])
+          .finally(() => {
+            this.props.form.resetFields(['password'])
+          })*/
+
+        // 发送请求
+        reqLogin(username, password)
+          .then((result) => {
+            // 登录成功
+            message.success('登录成功！');
+            // 跳转之前需要保存用户登录状态数据，保存在redux    持久化存储（cookie、localStorage-离线存储方案/sessionStorage-会话存储）
+            // 这是redux存储，刷新就清除
+            this.props.saveUser(result);
+            // 跳转到Home组件  跳转到 / 路由
+            this.props.history.replace('/');
           })
+          .finally(() => {
+            // 清空密码
+            this.props.form.resetFields(['password'])
+          })
+
       }
     })
   }
 
   render() {
     // getFieldDecorator这个方法用来处理表单校验
-    const { getFieldDecorator } = this.props.form;
+    const {getFieldDecorator} = this.props.form;
     // 这里标志着要开始使用高阶组件，牵扯到form属性，一个本来没有，后来添加的属性，用Components开发工具查看Login组件是否有form属性
     // 高阶组件的目的就是为了更好地复用
     return <div className="login">
@@ -144,11 +161,11 @@ class Login extends Component {
                 // 第二个参数传一个对象，包含rules规则，规则放进数组中
                 {
                   rules: [
-                    { validator: this.validator }
+                    {validator: this.validator}
                   ]
                 }
               )(
-                <Input prefix={<Icon type="user"/>} placeholder="用户名" />
+                <Input prefix={<Icon type="user"/>} placeholder="用户名"/>
               )
             }
           </Item>
@@ -158,11 +175,11 @@ class Login extends Component {
                 'password',
                 {
                   rules: [
-                    { validator: this.validator }
+                    {validator: this.validator}
                   ]
                 }
               )(
-                <Input prefix={<Icon type="lock"/>} placeholder="密码" type="password" />
+                <Input prefix={<Icon type="lock"/>} placeholder="密码" type="password"/>
               )
             }
           </Item>
